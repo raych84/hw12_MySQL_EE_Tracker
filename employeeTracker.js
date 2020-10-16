@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-const cTable = require('console.table');
+const cTable = require("console.table");
 
 var connection = mysql.createConnection({
 	host: "localhost",
@@ -40,31 +40,31 @@ function start() {
 		}])
 		.then(function (answer) {
 			switch (answer.action) {
-				case "Add departmets":
+				case "Add New Department(s)":
 					addDepts();
 					break;
 
-				case "Add Roles":
+				case "Add New Role(s)":
 					addRoles();
 					break;
 
-				case "Add Employees":
+				case "Add New Employee(s)":
 					addEe();
 					break;
 
-				case "View Departments":
+				case "View Department(s)":
 					viewDepts();
 					break;
 
-				case "View Roles":
+				case "View Role(s)":
 					viewRoles();
 					break;
 
-				case "View Employees":
+				case "View Employee(s)":
 					viewEe();
 					break;
 
-				case "Update Employee Roles":
+				case "Update Employee Role(s)":
 					updateEERoles();
 					break;
 
@@ -101,16 +101,25 @@ function addRoles() {
 	inquirer
 		.prompt([
 			{
-				name: "role",
+				name: "title",
 				type: "input",
 				message: "What new role(s) would you like to add?"
 			},
+			{
+				name: "salary",
+				type: "number",
+				message: "What is the salary amount for this role?"
+			},
+			{
+				name: "department_id",
+				type: "number",
+				message: "Please provide the Department ID correlated to this role."
+			}
 		])
 		.then(function (answer) {
 			connection.query(
 				"INSERT INTO role SET ?",
 				{
-					id: answer.id,
 					title: answer.title,
 					salary: answer.salary,
 					department_id: answer.department_id
@@ -139,30 +148,19 @@ function addEe() {
 				message: "What is the last name of your new employee?"
 			},
 			{
-				name: "id",
-				type: "number",
-				message: "What is your new employee's id number?"
-			},
-			{
 				name: "role_id",
 				type: "number",
-				message: "What is the role id of the new employee?"
+				message: "Please provide role ID your new employee?"
 			},
-			{
-				name: "manager_id",
-				type: "number",
-				message: "What is the manager id number of your new employee?"
-			}
+
 		])
 		.then(function (answer) {
-			connection.query(
-				"INSERT INTO employee SET?",
+			connection.query("INSERT INTO employee SET ?",
 				{
 					first_name: answer.first_name,
 					last_name: answer.last_name,
-					id: answer.id,
-					role_id: answer.role_id,
-					manager_id: answer.manager_id
+					role_id: answer.role_id
+
 				},
 				function (err) {
 					if (err) throw err;
@@ -174,63 +172,68 @@ function addEe() {
 
 }
 function viewDepts() {
-	inquirer
-		.prompt({
-			name: "department",
-			type: "input",
-			message: "What department are you looking for?"
+	
+	var query = "SELECT * FROM department ";
+	connection.query(query, function (err, res) {
+		if (err) throw err;
+		for (var i = 0; i < res.length; i++) {
+			console.table("Department: " + res[i].name + " || ID: " + res[i].id );
+		}
+		start();
+	});
+};
 
-		})
-
-		.then(function (answer) {
-			var query = "SELECT name, id FROM department WHERE ?";
-			connection.query(query, { name: answer.department }, function (err, res) {
-				if (err) throw err;
-				for (var i = 0; i < res.length; i++)
-					runSearch();
-			});
-		});
-}
 function viewRoles() {
-	inquirer
-		.prompt({
-			name: "role",
-			type: "input",
-			message: "Which role did you want to search for?"
-		})
-		.then(function (answer) {
-			var query = "SELECT id, title, department_id, salary FROM role WHERE ?";
-			connection.query(query, { name: answer.role }, function (err, res) {
-				if (err) throw err;
-				for (var i = 0; i < res.length; i++)
-					runSearch();
-			});
-		});
-}
+
+	var query = "SELECT * FROM role ";
+	connection.query(query, function (err, res) {
+		if (err) throw err;
+		for (var i = 0; i < res.length; i++) {
+			console.table("Role: " + res[i].title +  "|| ID: " + res[i].id +  "|| Department ID: " + res[i].department_id);
+		}
+		start();
+	});
+};
+
 function viewEe() {
-	inquirer
-		.prompt({
-			name: "employee",
-			type: "input",
-			message: "What employee did you want to search for?"
-		})
-		.then(function (answer) {
-			var query = "SELECT first_name, last_name, role_id, manager_id FROM employee WHERE ?";
-			connection.query(query, { name: answer.employee }, function (err, res) {
-				if (err) throw err;
-				for (var i = 0; i < res.length; i++)
-					runSearch();
-			});
-		});
-}
+	var query = "SELECT * FROM employee ";
+connection.query(query, function (err, res) {
+	if (err) throw err;
+	for (var i = 0; i < res.length; i++) {
+		console.table("Name: " + res[i].first_name +  res[i].last_name + " || ID: "  + res[i].id +  "|| Role ID: " + res[i].role_id);
+	}
+	start();
+});
+};
+
+	
 function updateEERoles() {
 	inquirer
-		.prompt({
-			name: "roles",
+		.prompt([{
+			name: "title",
 			type: "input",
-			message: "Which employee(s) role did you need to update?"
-		})
-	connection.query('UPDATE employee SET id = ?, first_name = ?, last_name = ?, role_id = ?, manager_id = ?, WHERE id = ?'), ['a', 'b', 'c', userId], function (error, results, fields) {
-		if (error) throw error
-	}
-}
+			message: "Which employee role did you need to update?"
+		},
+		{
+			name: "salary",
+			type: "input",
+			message: "What is the new salary?"
+		}
+		])
+		.then(function(answer) {
+			// when finished prompting, insert a new item into the db with that info
+			connection.query(
+			  "UPDATE role SET  ?",
+			  {
+				title: answer.title,
+				salary: answer.salary
+			  },
+			  function(err) {
+				if (err) throw err;
+				console.log("Your update was completed successfully!");
+			
+				start();
+			  }
+			);
+		  });
+	  }

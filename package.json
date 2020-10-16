@@ -1,14 +1,8 @@
 {
-  "name": "hw12_mysql_ee_tracker",
+  "name": "hw12_MySQL_EE_Tracker",
   "version": "1.0.0",
   "description": "",
   "main": "employeeTracker.js",
-  "dependencies": {
-    "console.table": "^0.10.0",
-    "inquirer": "^0.2.5",
-    "mysql": "^2.18.1"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,10 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/raych84/hw12_MySQL_EE_Tracker.git"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/raych84/hw12_MySQL_EE_Tracker/issues"
   },
-  "homepage": "https://github.com/raych84/hw12_MySQL_EE_Tracker#readme"
+  "homepage": "https://github.com/raych84/hw12_MySQL_EE_Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
 }
